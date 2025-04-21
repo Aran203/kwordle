@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL
+
 type LetterStatus = "correct" | "present" | "absent";
 type ColoredLetter = { letter: string; status: LetterStatus };
 
@@ -19,10 +21,8 @@ export default function HomePage() {
     const [wordOfDay, setWordOfDay] = useState<string>("Kohli")
     const [validWord, setValidWord] = useState<boolean>(true)
 
-    const [numGuesses, setNumGuesses] = useState<number | null>(null)
-
+    // const [numGuesses, setNumGuesses] = useState<number | null>(null)
     const [bouncedh, setBouncedh] = useState<number | null>(null);
-
 
     const [guessed, setGuessed] = useState<boolean>(false)
     const [shakeRow, setShakeRow] = useState(false)
@@ -41,24 +41,66 @@ export default function HomePage() {
         5: "CLOSE CALL!",
         6: "PHEW!"
     };
-    
 
+
+    useEffect(() => {
+        const fetchWord = async() => {
+            try {
+                const response = await fetch("https://random-word-api.herokuapp.com/word?number=1&length=5")
+                if (!response.ok){
+                    const errorMessage = await response.text()
+                    throw new Error(errorMessage)
+                }
+    
+                const [data] = await response.json()
+                setWordOfDay(data)
+            } catch (err) {
+                console.log(err)
+            }
+        }
+
+        fetchWord()
+    }, [])
+
+    
     useEffect(() => {
         if (guesses.length >= 6 || guessed) return;
 
-        const handleKeyDown = (e: KeyboardEvent) => {
+        const handleKeyDown = async(e: KeyboardEvent) => {
             const key = e.key.toLowerCase();
 
             if (key === "backspace") {
                 setCurrentGuess((prev) => prev.slice(0, -1));
 
             } else if (key === "enter") {
-                if (currentGuess.length === 5) {
+                let valid = true
+
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/validate_word`,  {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({word: currentGuess.join("")})
+                        }
+                    )
+
+                    const data = await response.json();
+                    
+                    if (data === "invalid"){
+                        valid = false
+                    }
+
+                } catch (err) {
+                    
+                }
+
+                if (currentGuess.length === 5 && valid) {
                     const colored = processGuess(currentGuess, wordOfDay);
 
                     if (currentGuess.join("") === wordOfDay.toLowerCase()) {
                         setGuessed(true);
-                        setNumGuesses(guesses.length)
+                        // setNumGuesses(guesses.length)
 
                         setShowMessage(true);
                         setBouncedh(guesses.length);
@@ -69,6 +111,12 @@ export default function HomePage() {
                     setGuesses((prev) => [...prev, colored]);
                     setCurrentGuess([]);
                 } else {
+
+                    if (!valid) {
+                        setValidWord(false);
+                        setTimeout(() => setValidWord(true), 1000); 
+                    }
+
                     setShakeRow(true);
                     setTimeout(() => setShakeRow(false), 600);
                 }
@@ -110,6 +158,12 @@ export default function HomePage() {
             {showMessage && (
                 <div className="absolute -top-16 bg-black text-white px-4 py-2 rounded shadow-lg text-md font-semibold">
                     {guessMessages[guesses.length]}
+                </div>
+            )}
+
+            {!validWord && (
+                <div className="absolute -top-16 bg-black text-white px-4 py-2 rounded shadow-lg text-md font-semibold">
+                    Not a valid word
                 </div>
             )}
 
