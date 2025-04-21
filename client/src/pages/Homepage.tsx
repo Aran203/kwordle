@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 // import { useUser } from "@clerk/clerk-react";
+import { getAuth } from "firebase/auth";
+
 
 const BACKEND_URL = import.meta.env.VITE_API_URL
 
@@ -133,6 +135,27 @@ export default function HomePage() {
                     //         console.error("Error submitting guess:", err);
                     //     }
                     // }
+
+                    const auth = getAuth();
+                    const currentUser = auth.currentUser;
+
+                    if (currentUser) {
+                        try {
+                            await fetch(`${BACKEND_URL}/api/submit`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    user: currentUser.uid,
+                                    guess: currentGuess.join(""),
+                                    isCorrect: currentGuess.join("") === wordOfDay.toLowerCase(),
+                                }),
+                            });
+                        } catch (err) {
+                            console.error("Error submitting guess:", err);
+                        }
+                    }
                 
                     setGuesses((prev) => [...prev, colored]);
                     setCurrentGuess([]);
