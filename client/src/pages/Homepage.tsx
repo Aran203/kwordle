@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 // import { useUser } from "@clerk/clerk-react";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 
 const BACKEND_URL = import.meta.env.VITE_API_URL
@@ -24,14 +24,11 @@ export default function HomePage() {
     const [wordOfDay, setWordOfDay] = useState<string>("Kohli")
     const [validWord, setValidWord] = useState<boolean>(true)
 
-    // const [numGuesses, setNumGuesses] = useState<number | null>(null)
     const [bouncedh, setBouncedh] = useState<number | null>(null);
 
     const [guessed, setGuessed] = useState<boolean>(false)
     const [shakeRow, setShakeRow] = useState(false)
     const [showMessage, setShowMessage] = useState(false)
-
-    // const { user, isSignedIn } = useUser();
 
 
     const [guesses, setGuesses] = useState<ColoredLetter[][]>([]);
@@ -46,6 +43,11 @@ export default function HomePage() {
         5: "CLOSE CALL!",
         6: "PHEW!"
     };
+
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+    const [user, setUser] = useState<any>(null); 
+
 
 
     useEffect(() => {
@@ -68,9 +70,64 @@ export default function HomePage() {
         fetchWord()
     }, [])
 
-    // useEffect(() => {
-    //     console.log(wordOfDay)
-    // }, [wordOfDay])
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (!currentUser || user) {
+                setGuesses([]);
+                setGuessed(false);
+                setUser(null);
+                return;
+            }
+    
+            setUser(currentUser);
+    
+            try {
+                const today = new Date();
+                const yyyyMmDd = today.toISOString().split('T')[0]; 
+    
+                const response = await fetch(`${BACKEND_URL}/api/submissions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user: currentUser.uid,
+                        date: yyyyMmDd,
+                    }),
+                });
+    
+                const data = await response.json();
+                console.log(data)
+    
+                if (data.submissions && data.submissions.length > 0) {
+                    
+                    setGuesses(data.submissions);
+                    setGuessed(data.solved)
+
+                    if (data.status){
+                        setGuessed(true);
+
+                        setShowMessage(true);
+                        setTimeout(() => setShowMessage(false), 2500); 
+                    }
+                } else {
+                    // setGuesses([]);
+                    // setGuessed(false);
+                }
+    
+            } catch (err) {
+                console.error('Error fetching previous submissions:', err);
+            }
+        });
+    
+        return () => unsubscribe(); // Cleanup listener on component unmount
+    }, [auth]);
+    
+
+    useEffect(() => {
+        console.log(guessed)
+    }, [guessed])
+    
 
     
     useEffect(() => {
@@ -118,26 +175,7 @@ export default function HomePage() {
                         setTimeout(() => setBouncedh(null), 2500); 
                     }
 
-                    // if (isSignedIn && user?.id) {
-                    //     try {
-                    //         await fetch(`${BACKEND_URL}/api/submit`, {
-                    //             method: "POST",
-                    //             headers: {
-                    //                 "Content-Type": "application/json",
-                    //             },
-                    //             body: JSON.stringify({
-                    //                 user: user.id,
-                    //                 guess: currentGuess.join(""),
-                    //                 isCorrect: currentGuess.join("") === wordOfDay.toLowerCase()
-                    //             }),
-                    //         });
-                    //     } catch (err) {
-                    //         console.error("Error submitting guess:", err);
-                    //     }
-                    // }
-
-                    const auth = getAuth();
-                    const currentUser = auth.currentUser;
+                    
 
                     if (currentUser) {
                         try {
