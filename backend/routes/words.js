@@ -4,7 +4,7 @@ import Word from '../models/words.js';
 const getWordOfDay = async (req, res) => {
     try {
         let word = await Word.findOne().sort({ date: -1 }).limit(1); 
-        console.log("HERE")
+
         if (!word) {
             // const response = await fetch("https://random-word-api.herokuapp.com/word?number=1&length=5");
             const response = await fetch("https://random-word-api.vercel.app/api?words=1&length=5")

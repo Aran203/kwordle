@@ -63,9 +63,9 @@ export default function HomePage() {
         fetchWord()
     }, [])
 
-    useEffect(() => {
-        console.log(wordOfDay)
-    }, [wordOfDay])
+    // useEffect(() => {
+    //     console.log(wordOfDay)
+    // }, [wordOfDay])
 
     
     useEffect(() => {
