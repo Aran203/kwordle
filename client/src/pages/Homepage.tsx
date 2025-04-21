@@ -46,13 +46,14 @@ export default function HomePage() {
     useEffect(() => {
         const fetchWord = async() => {
             try {
-                const response = await fetch("https://random-word-api.herokuapp.com/word?number=1&length=5")
+                const response = await fetch(`${BACKEND_URL}/api/getWordOfDay`)
+                
                 if (!response.ok){
                     const errorMessage = await response.text()
                     throw new Error(errorMessage)
                 }
     
-                const [data] = await response.json()
+                const data = await response.json()
                 setWordOfDay(data)
             } catch (err) {
                 console.log(err)
@@ -61,6 +62,10 @@ export default function HomePage() {
 
         fetchWord()
     }, [])
+
+    useEffect(() => {
+        console.log(wordOfDay)
+    }, [wordOfDay])
 
     
     useEffect(() => {
