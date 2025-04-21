@@ -22,7 +22,7 @@ const app = express()
 const PORT = 8080
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://kwordled.vercel.app'],
+    origin: ['http://localhost:5173', 'https://kwordled.vercel.app', 'https://karanbhalla.tech'],
     methods: ['GET', 'POST'],
     credentials: true,
 }));
