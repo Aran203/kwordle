@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-react";
+// import { useUser } from "@clerk/clerk-react";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL
 
@@ -29,7 +29,7 @@ export default function HomePage() {
     const [shakeRow, setShakeRow] = useState(false)
     const [showMessage, setShowMessage] = useState(false)
 
-    const { user, isSignedIn } = useUser();
+    // const { user, isSignedIn } = useUser();
 
 
     const [guesses, setGuesses] = useState<ColoredLetter[][]>([]);
@@ -116,23 +116,23 @@ export default function HomePage() {
                         setTimeout(() => setBouncedh(null), 2500); 
                     }
 
-                    if (isSignedIn && user?.id) {
-                        try {
-                            await fetch(`${BACKEND_URL}/api/submit`, {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                    user: user.id,
-                                    guess: currentGuess.join(""),
-                                    isCorrect: currentGuess.join("") === wordOfDay.toLowerCase()
-                                }),
-                            });
-                        } catch (err) {
-                            console.error("Error submitting guess:", err);
-                        }
-                    }
+                    // if (isSignedIn && user?.id) {
+                    //     try {
+                    //         await fetch(`${BACKEND_URL}/api/submit`, {
+                    //             method: "POST",
+                    //             headers: {
+                    //                 "Content-Type": "application/json",
+                    //             },
+                    //             body: JSON.stringify({
+                    //                 user: user.id,
+                    //                 guess: currentGuess.join(""),
+                    //                 isCorrect: currentGuess.join("") === wordOfDay.toLowerCase()
+                    //             }),
+                    //         });
+                    //     } catch (err) {
+                    //         console.error("Error submitting guess:", err);
+                    //     }
+                    // }
                 
                     setGuesses((prev) => [...prev, colored]);
                     setCurrentGuess([]);
