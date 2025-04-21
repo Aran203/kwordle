@@ -1,5 +1,5 @@
-import {BarChart2, Settings, User} from "lucide-react"
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
+import {BarChart2, Settings} from "lucide-react"
+// import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 
 
 interface NavItemProps {
@@ -24,14 +24,14 @@ export default function Navbar() {
                         <NavItem icon={<Settings className="w-5 h-5" />} label="Settings" />
                         
                         <div className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                            <SignedOut>
+                            {/* <SignedOut>
                                 <User/>
                                 <SignInButton />
                             </SignedOut>
 
                             <SignedIn>
                                 <UserButton />
-                            </SignedIn>
+                            </SignedIn> */}
                         </div>
                                             
                     </div>
