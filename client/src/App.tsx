@@ -1,47 +1,20 @@
-import { useEffect, useState } from 'react'
 import './index.css'
+import Navbar from './components/Navbar'
+import { Routes, Route } from 'react-router-dom'
+import HomePage from './pages/Homepage'
 
-const BACKEND_URL = import.meta.env.VITE_API_URL
 
 function App() {
 
-    const [word, setWord] = useState<string>()
-
-    const test = async() => {
-        try {
-            const response = await fetch(`${BACKEND_URL}/api`)
-            if (!response.ok){
-                const errorMessage = await response.text()
-                throw new Error(errorMessage)
-            }
-
-            const data = await response.json()
-            setWord(data)
-
-        } catch (err) {
-            console.log(err)
-        }
-    }
-
-    useEffect(() => {
-      
-        test()
-      
-    }, [])
-    
-
-    
     return (
-    <div>
-        <div className = "text-2xl font-extrabold text-center my-4">
-            HELLO
+        <div> 
+            <Navbar/>
+            <div className='flex-grow'>
+                <Routes>
+                    <Route path = "/" element = {<HomePage/>} />
+                </Routes>
+            </div>
         </div>
-
-        <div className='text-xl text-blue-700 text-center my-96'>
-            {word}
-        </div>
-
-    </div>
     )
 }
 
