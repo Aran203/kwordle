@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 import {validateWord, getWordOfDay} from './routes/words.js'
+import { addSubmission } from './routes/submissions.js';
 
 
 
@@ -34,6 +35,7 @@ app.get('/api', (request, response) => {
 
 app.post('/api/validate_word', validateWord)
 app.get('/api/getWordOfDay', getWordOfDay);
+app.post('/api/submit', addSubmission)
 
 
 
