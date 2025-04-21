@@ -83,7 +83,38 @@ const getSubmisssions = async (req, res) => {
 };
 
 
+const userStats = async(req, res) =>  {
+
+    const { user } = req.body;
+
+    if (!user) return res.status(400).json({ error: "Missing user ID" });
+
+    try {
+        const submissions = await Submission.find({ user });
+
+        const solvedDates = new Set(
+            submissions.filter((s) => s.isCorrect).map((s) => new Date(s.guessDate).toDateString())
+        );
+
+        let streak = 0;
+        let current = new Date();
+        current.setHours(0, 0, 0, 0);
+
+        while (solvedDates.has(current.toDateString())) {
+            streak++;
+            current.setDate(current.getDate() - 1);
+        }
+
+        res.status(200).json({ solves: solvedDates.size, streak });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Something went wrong" });
+    }
+}
+
+
+
 export {
-    addSubmission, getSubmisssions
+    addSubmission, getSubmisssions, userStats
 } 
 
