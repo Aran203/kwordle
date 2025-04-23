@@ -21,16 +21,34 @@ const addSubmission = async(req, res) => {
 
 
 
-const processGuess = (guess, word) => {
-    return guess.map((letter, i) => {
+function processGuess(guess, word) {
+    const result = new Array(guess.length);
+    const freq = new Map();
+
+    for (const char of word.toLowerCase()) {
+        freq.set(char, (freq.get(char) || 0) + 1);
+    }
+
+    for (let i = 0; i < guess.length; i++) {
+        const letter = guess[i];
         if (letter === word[i].toLowerCase()) {
-            return { letter, status: "correct" };
-        } else if (word.toLowerCase().includes(letter)) {
-            return { letter, status: "present" };
-        } else {
-            return { letter, status: "absent" };
+            result[i] = { letter, status: "correct" };
+            freq.set(letter, freq.get(letter) - 1); 
         }
-    });
+    }
+
+    for (let i = 0; i < guess.length; i++) {
+        if (result[i]) continue; 
+        const letter = guess[i];
+        if (freq.get(letter)) {
+            result[i] = { letter, status: "present" };
+            freq.set(letter, freq.get(letter) - 1); 
+        } else {
+            result[i] = { letter, status: "absent" };
+        }
+    }
+
+    return result;
 }
 
 const getSubmisssions = async (req, res) => {
